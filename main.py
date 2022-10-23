@@ -4,6 +4,7 @@
 # Work with names in a list
 
 
+# Class to store and manage a list of names
 class Names:
 
     def __init__(self, name_list=None):
@@ -13,7 +14,7 @@ class Names:
         else:
             self.name_list = name_list
 
-    # return the length of the current name list
+    # returns the length of the current name list
     def list_len(self):
         return len(self.name_list)
 
@@ -21,13 +22,13 @@ class Names:
     def display_list(self):
         print("Name List")
         print("- "*8)
+        # Iterate over each name in the list
         for i in range(0, self.list_len()):
+            # Print user friendly index numbers and names
             print(f"{i+1}. {self.name_list[i]}")
 
     # Add (insert) a name to the specified index number
-    def insert_name(self, add_dict):
-        index = add_dict['index']
-        value = add_dict['value']
+    def insert_name(self, value, index=-1):
         # Default to end of list if no index is given
         if index == -1:
             index = self.list_len()
@@ -46,72 +47,94 @@ class Names:
         # Add the new item to the specified spot in the list
         self.name_list[index] = value
 
+        # Return the name that was added
         return value
 
     # Delete the first occurrence of a name in the list
     def delete_name(self, value):
+        # Find the list index of the given name value
         index = self.search_name(value)
+
+        # If name value is not found in the list
         if index is None:
+            # Return None
             return None
         else:
+            # Iterate over the list
             for i in range(index, self.list_len() - 1):
+                # Copy each list item after the deleted item to the previous spot in the list
                 self.name_list[i] = self.name_list[i+1]
-
+        # Delete the last item in the list
         del (self.name_list[-1])
+        # Return the name value deleted
         return value
 
     # Sort two words lexicographically, return tuple in sorted order
     def sort_word(self, word1, word2):
         # Convert variables to strings
-        word1 = str(word1)
-        word2 = str(word2)
+        word1, word2 = str(word1), str(word2)
 
         # Get lengths of both words
-        len1 = len(word1)
-        len2 = len(word2)
+        len1, len2 = len(word1), len(word2)
 
         # Get the length of the shortest word for the iteration
         min_len = min(len1, len2)
 
         # Iterate over each letter
         for i in range(0, min_len):
+            # If the letter in word1 is lower than the same position in word2
             if word1[i].lower() < word2[i].lower():
                 # Word 1 sorts first
                 return word1, word2
 
+            # If the letter in word2 is lower than the same position in word1
             elif word2[i].lower() < word1[i].lower():
                 # Word 2 sorts first
                 return word2, word1
 
         # If we get to this test, the first i characters of each word are identical
         if len2 < len1:
-            # Word 2 is shorter
+            # Word 2 is shorter and shorter word wins
             return word2, word1
         else:
-            # Word 1 is shorter or lengths are even, so keep initial order
+            # Word 1 is shorter or words are identical so keep initial order
             return word1, word2
 
     # Sort the list by name
     def sort_list(self):
+        # Create a shallow copy of the list to compare after sort
+        original_list = self.name_list.copy()
+
         # Iterate of each word in order
         for i in range(0, self.list_len()):
             # Iterate over each other word in order, skip words in the same position
             # min() avoids index out of range errors
             for j in range(min(i+1, self.list_len()), self.list_len()):
                 # Sort word1 and word2
-                a, b = self.sort_word(self.name_list[i], self.name_list[j])
-                # If the sorted order is different than the original order
-                if (self.name_list[i], self.name_list[j]) != (a, b):
+                low_word, high_word = self.sort_word(self.name_list[i], self.name_list[j])
+                # If the sorted order is different from the original order
+                if (self.name_list[i], self.name_list[j]) != (low_word, high_word):
                     # Swap the two words
-                    self.name_list[i] = a
-                    self.name_list[j] = b
+                    self.name_list[i] = low_word
+                    self.name_list[j] = high_word
+
+        # If the sorted list is the same as the original list
+        if self.name_list == original_list:
+            # Return False, no sort was needed
+            return False
+        else:
+            # Sort completed
+            return True
 
     # Search for the index number of a name in the list
     def search_name(self, value):
+        # Iterate over the list
         for i in range(0, self.list_len()):
+            # If the search value matches a value in the list case-insensitive
             if self.name_list[i].lower() == value.lower():
+                # Return the index number
                 return i
-
+        # If not found, return None
         return None
 
 
@@ -125,9 +148,13 @@ class PickMenu:
 
     # Print each menu item with menu numbers
     def show_menu(self):
+        # Title
         print(self.menu_name)
+        # Dividing line
         print("- "*8)
+        # Iterate over menu items
         for i in range(0, len(self.menu_items)):
+            # Print user-friendly index numbers and items
             print(f"{str(i + 1)}. {self.menu_items[i]}")
 
     # Get and validate menu choice from user
@@ -161,15 +188,15 @@ def main_menu_action(menu_choice, obj_names):
 
     # 3. Delete a Name
     elif menu_choice == 3:
-        pass
+        delete_name(obj_names)
 
     # 4. Sort List by Name
     elif menu_choice == 4:
-        pass
+        sort_list(obj_names)
 
     # 5. Search for a Name
     elif menu_choice == 5:
-        pass
+        search_name(obj_names)
 
     # 6. Quit
     elif menu_choice == 6:
@@ -186,22 +213,80 @@ def add_name(obj_names):
     add_menu_title = 'Choose where to add the name'
     add_menu_details = {'title': add_menu_title, 'items': add_menu_tuple}
     add_menu = PickMenu(add_menu_details)
-    # names_menu = PickMenu
+
     print()
-    print("At which index would you like to add a new name\n (blank for at the end)? ")
-    user_choice = add_menu.get_menu_response(True) - 1
+    print("At which index would you like to add a new name\n(blank for at the end)? ")
+
+    # Get the index number where the name will be inserted - subtract 1 to match list index
+    index = int(add_menu.get_menu_response(True)) - 1
+    # Get name to add from user
+    new_name = input("Enter a new name (blank to exit): ").strip()
+
+    # Verify some text was entered
+    if len(new_name) > 0:
+        # Call method to insert name
+        obj_names.insert_name(new_name, index)
+    else:
+        print("No new name was added.")
 
 
-def delete_name():
-    pass
+# Delete name from list
+def delete_name(obj_names):
+    # Display names list
+    obj_names.display_list()
+
+    # Get name to delete from user
+    print()
+    name = input("Please type the name to delete from the list (blank to exit): ")
+    # Stop if string is empty
+    if len(name) == 0:
+        return None
+
+    else:
+        # Call method to attempt to delete name
+        result = obj_names.delete_name(name)
+        # If method returned None, name was not found
+        if result is None:
+            print(f"The name {name} was not found in the list.")
+            return result
+        # Method deleted name
+        else:
+            print(f"The first occurrence of {result} was removed from the list")
+            return result
 
 
-def sort_list():
-    pass
+# Sort the list
+def sort_list(obj_names):
+    # Call the method to sort the list
+    result = obj_names.sort_list()
+    # Method returns True if list was sorted
+    if result:
+        print("The list has been sorted.")
+    # Method returns False if list was already sorted
+    else:
+        print("The list was already in sorted order.")
 
 
-def search_name():
-    pass
+# Search for a name in the list
+def search_name(obj_names):
+    # Get name to delete from user
+    name = input("Please type the name to search for (blank to exit): ")
+    # Stop if string is empty
+    if len(name) == 0:
+        return None
+
+    else:
+        # Call method to search for name
+        result = obj_names.search_name(name)
+        # Method returns None if the name was not found
+        if result is None:
+            print(f"The name {name} was not found in the list.")
+            return result
+        # Method returns the index number if the name was found
+        else:
+            # Print user-friendly index number
+            print(f"The first occurrence of {name} is at index {result+1} in the list")
+            return result
 
 
 # Function to quit the program
@@ -241,5 +326,7 @@ def main():
         # Execute user menu choice
         main_menu_action(user_choice, names)
 
+
+# Execute the main function
 if __name__ == '__main__':
     main()
