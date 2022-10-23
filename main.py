@@ -33,7 +33,7 @@ class Names:
         if index == -1:
             index = self.list_len()
 
-        # If the given index out of bounds return None
+        # If the given index out of range return None
         if index > self.list_len():
             return None
 
