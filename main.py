@@ -22,12 +22,14 @@ class Names:
         print("Name List")
         print("- "*8)
         for i in range(0, self.list_len()):
-            print(f"{i}. {self.name_list[i]}")
+            print(f"{i+1}. {self.name_list[i]}")
 
     # Add (insert) a name to the specified index number
-    def add_name(self, value, index=None):
+    def insert_name(self, add_dict):
+        index = add_dict['index']
+        value = add_dict['value']
         # Default to end of list if no index is given
-        if index is None:
+        if index == -1:
             index = self.list_len()
 
         # If the given index out of bounds return None
@@ -129,34 +131,93 @@ class PickMenu:
             print(f"{str(i + 1)}. {self.menu_items[i]}")
 
     # Get and validate menu choice from user
-    def get_menu_response(self):
+    def get_menu_response(self, allow_none=False):
         # loop until user gives valid menu response
         while True:
             # Ask user for menu number
-            response = input("Enter the number of your menu choice: ").strip()
+            response = input("Enter the menu number of your choice: ").strip()
             # Check if response string is an integer
             if response.isdigit():
                 # Check if response is a valid menu integer
                 if (int(response) - 1) in range(0, len(self.menu_items)):
                     return int(response)
+            elif len(response) == 0 and allow_none:
+                return 0
 
             # User did not enter valid integer response
             print(f"Please enter a menu choice between 1 and {len(self.menu_items)}.")
             print()
 
 
+# Function to execute user choice
+def main_menu_action(menu_choice, obj_names):
+    # 1. Display names list
+    if menu_choice == 1:
+        obj_names.display_list()
+
+    # 2. Add a Name
+    elif menu_choice == 2:
+        add_name(obj_names)
+
+    # 3. Delete a Name
+    elif menu_choice == 3:
+        pass
+
+    # 4. Sort List by Name
+    elif menu_choice == 4:
+        pass
+
+    # 5. Search for a Name
+    elif menu_choice == 5:
+        pass
+
+    # 6. Quit
+    elif menu_choice == 6:
+        app_quit()
 
 
+# Add a name to the list at the specified index
+def add_name(obj_names):
+    # Display names list
+    obj_names.display_list()
 
+    # Initialize names menu
+    add_menu_tuple = tuple(obj_names.name_list)
+    add_menu_title = 'Choose where to add the name'
+    add_menu_details = {'title': add_menu_title, 'items': add_menu_tuple}
+    add_menu = PickMenu(add_menu_details)
+    # names_menu = PickMenu
+    print()
+    print("At which index would you like to add a new name\n (blank for at the end)? ")
+    user_choice = add_menu.get_menu_response(True) - 1
+
+
+def delete_name():
+    pass
+
+
+def sort_list():
+    pass
+
+
+def search_name():
+    pass
+
+
+# Function to quit the program
+def app_quit():
+    print("Goodbye")
+    quit()
 
 
 def main():
     # Initialize list of names with some starter names
     names = Names(['Kwame', 'Alex', 'Roberta', 'Bharathi', 'Spyro', 'Martika', 'Roberta',
-                 'Sebastian', 'Robert', 'Greta', 'Oliver'])
+                   'Sebastian', 'Robert', 'Greta', 'Oliver'])
 
     # Main Menu details
-    main_menu_tuple = ('Add a Name', 'Delete a Name', 'Sort List by Name', 'Search for a Name', 'Quit')
+    main_menu_tuple = ('Display Names List', 'Add a Name', 'Delete a Name', 'Sort List by Name', 'Search for a Name',
+                       'Quit')
     main_menu_name = 'Main Menu'
     main_menu_details = {'title': main_menu_name, 'items': main_menu_tuple}
 
@@ -167,14 +228,18 @@ def main():
     print()
     names.display_list()
 
-    # Display main menu
-    print()
-    main_menu.show_menu()
+    # Loop the main menu until user quits
+    while True:
+        # Show the main menu
+        print()
+        main_menu.show_menu()
 
-    names.sort_list()
+        # Get user menu choice
+        user_choice = main_menu.get_menu_response()
+        print()
 
-    names.display_list()
-
+        # Execute user menu choice
+        main_menu_action(user_choice, names)
 
 if __name__ == '__main__':
     main()
